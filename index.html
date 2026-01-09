@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧬 News Genome - AI News Analysis</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">🧬</div>
+            <h1>News Genome</h1>
+            <p class="subtitle">Advanced AI-Powered News Analysis & Intelligence</p>
+        </header>
+
+        <div class="input-section">
+            <input
+                id="topic"
+                type="text"
+                placeholder="Enter a news topic, event, or headline..."
+                onkeypress="handleEnter(event)"
+            >
+        </div>
+
+        <div class="buttons-section">
+            <button class="btn-analyze" onclick="callAPI('analyze')">📊 Analyze</button>
+            <button class="btn-debate" onclick="callAPI('debate')">⚔️ Debate</button>
+            <button class="btn-deconstruct" onclick="callAPI('deconstruct')">🔍 Deconstruct</button>
+            <button class="btn-explain" onclick="callAPI('explain')">💡 Explain</button>
+            <button class="btn-summary" onclick="callAPI('summary')">📝 Summary</button>
+        </div>
+
+        <div class="output-section">
+            <div id="output">Enter a topic and click an analysis button to begin</div>
+        </div>
+
+        <div class="footer">
+            <p>Powered by IBM Granite AI Model • Real-time Intelligence Analysis</p>
+        </div>
+    </div>
+
+    <script>
+        async function callAPI(endpoint) {
+            const topic = document.getElementById("topic").value.trim();
+
+            if (!topic) {
+                showError("Please enter a news topic");
+                return;
+            }
+
+            if (topic.length < 3) {
+                showError("Topic must be at least 3 characters long");
+                return;
+            }
+
+            disableButtons(true);
+            showLoading();
+
+            try {
+                const response = await fetch(`/${endpoint}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ topic })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                displayResult(data.result);
+            } catch (error) {
+                showError(`Error: ${error.message}`);
+                console.error("API Error:", error);
+            } finally {
+                disableButtons(false);
+            }
+        }
+
+        function handleEnter(event) {
+            if (event.key === "Enter") {
+                callAPI("analyze");
+            }
+        }
+
+        function showLoading() {
+            const output = document.getElementById("output");
+            output.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Analyzing your topic...
+                </div>
+            `;
+        }
+
+        function showError(message) {
+            const output = document.getElementById("output");
+            output.innerHTML = `<div class="error">❌ ${message}</div>`;
+        }
+
+        function displayResult(result) {
+            const output = document.getElementById("output");
+            output.textContent = result;
+        }
+
+        function disableButtons(disabled) {
+            const buttons = document.querySelectorAll("button");
+            buttons.forEach(btn => btn.disabled = disabled);
+        }
+    </script>
+</body>
+</html>
